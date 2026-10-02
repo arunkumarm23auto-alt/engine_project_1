@@ -592,17 +592,15 @@ with recommendation_col:
 trend_col, anomaly_col = st.columns([1.7, 1])
 with trend_col:
     st.markdown('<div class="section-label">Trend Analysis</div>', unsafe_allow_html=True)
-    if "timestamp" in results.columns and not results.empty:
-        chart_df = results[["timestamp"] + parameter_filter + ["Estimated Health Score", "Estimated RUL Percent"]].copy()
-        chart_df = chart_df.sort_values("timestamp").dropna(subset=["timestamp"]).reset_index(drop=True)
-        if chart_df.empty:
-            chart_df = results[["timestamp"] + parameter_filter + ["Estimated Health Score", "Estimated RUL Percent"]].copy()
+    if not results.empty:
+        chart_df = results[parameter_filter + ["Estimated RUL Percent"]].copy()
+        chart_df = chart_df.sort_values("Estimated RUL Percent").reset_index(drop=True)
         chart_fig = go.Figure()
         palette = ["#0f766e", "#2563eb", "#f59e0b", "#14b8a6", "#7c3aed", "#ef4444"]
         for idx, parameter in enumerate(parameter_filter):
             chart_fig.add_trace(
                 go.Scatter(
-                    x=chart_df["timestamp"],
+                    x=chart_df["Estimated RUL Percent"],
                     y=chart_df[parameter],
                     mode="lines+markers",
                     name=parameter,
@@ -611,30 +609,6 @@ with trend_col:
                     line_shape="spline",
                 )
             )
-        chart_fig.add_trace(
-            go.Scatter(
-                x=chart_df["timestamp"],
-                y=chart_df["Estimated Health Score"],
-                mode="lines+markers",
-                name="Health Score",
-                yaxis="y2",
-                line={"dash": "solid", "color": "#0f766e", "width": 2.8},
-                marker={"size": 5, "color": "#0f766e"},
-                line_shape="spline",
-            )
-        )
-        chart_fig.add_trace(
-            go.Scatter(
-                x=chart_df["timestamp"],
-                y=chart_df["Estimated RUL Percent"],
-                mode="lines+markers",
-                name="RUL",
-                yaxis="y2",
-                line={"dash": "dot", "color": "#2563eb", "width": 2.8},
-                marker={"size": 5, "color": "#2563eb"},
-                line_shape="spline",
-            )
-        )
         chart_fig.update_layout(
             height=365,
             legend={"orientation": "h", "y": 1.18, "x": 0},
@@ -642,13 +616,11 @@ with trend_col:
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="#ffffff",
             xaxis={
-                "title": "Date",
+                "title": "Estimated RUL (%)",
                 "showgrid": False,
-                "tickformat": "%b %d",
-                "type": "date",
+                "range": [0, 100],
             },
             yaxis={"title": "Sensor values", "gridcolor": "#eef2f2"},
-            yaxis2={"title": "Health / RUL (%)", "overlaying": "y", "side": "right", "gridcolor": "#eef2f2"},
             hovermode="x unified",
         )
         st.plotly_chart(chart_fig, use_container_width=True)
