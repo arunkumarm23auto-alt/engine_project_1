@@ -40,6 +40,16 @@ st.markdown(
         font-family: "Trebuchet MS", "Segoe UI", sans-serif;
     }
     .stApp { background: linear-gradient(180deg, #f3f9f7 0%, #eef5f4 100%); color: #17332d; }
+
+    /* White upper Streamlit header area */
+    [data-testid="stHeader"] {
+        background: #ffffff !important;
+        color: #17332d !important;
+    }
+    [data-testid="stHeader"] * {
+        color: #17332d !important;
+    }
+
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #edf6f4 0%, #e7f1ef 100%);
         border-right: 1px solid rgba(15,118,110,0.12);
@@ -63,9 +73,32 @@ st.markdown(
     [data-testid="stSidebar"] .stMultiSelect > div,
     [data-testid="stSidebar"] .stRadio > div,
     [data-testid="stSidebar"] .stFileUploader > section {
-        background: rgba(255,255,255,0.8) !important;
+        background: #ffffff !important;
         border: 1px solid rgba(15,118,110,0.18) !important;
         border-radius: 12px !important;
+    }
+
+    /* White Parameters to display box */
+    [data-testid="stSidebar"] .stMultiSelect [data-baseweb="select"] {
+        background: #ffffff !important;
+        color: #17332d !important;
+        border-radius: 10px !important;
+    }
+    [data-testid="stSidebar"] .stMultiSelect [data-baseweb="select"] > div {
+        background: #ffffff !important;
+        color: #17332d !important;
+    }
+    [data-testid="stSidebar"] .stMultiSelect input {
+        color: #17332d !important;
+        background: #ffffff !important;
+    }
+    [data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"] {
+        background: #ffffff !important;
+        border: 1px solid rgba(15,118,110,0.25) !important;
+        color: #17332d !important;
+    }
+    [data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"] span {
+        color: #17332d !important;
     }
     .status-pill { display: inline-block; padding: 0.38rem 0.7rem; border-radius: 999px; font-size: 0.76rem;
                    font-weight: 700; letter-spacing: 0.03em; }
