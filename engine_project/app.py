@@ -642,9 +642,9 @@ with trend_col:
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="#ffffff",
             xaxis={
-                "title": "Year",
+                "title": "Date",
                 "showgrid": False,
-                "tickformat": "%Y",
+                "tickformat": "%b %d",
                 "type": "date",
             },
             yaxis={"title": "Sensor values", "gridcolor": "#eef2f2"},
