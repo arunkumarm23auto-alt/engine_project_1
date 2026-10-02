@@ -1,3 +1,4 @@
+from html import escape
 from io import BytesIO
 from pathlib import Path
 
@@ -36,163 +37,324 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    html, body {
-        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-    }
-    .stApp { background: linear-gradient(180deg, #f3f9f7 0%, #eef5f4 100%); color: #17332d; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-    /* White upper Streamlit header area */
-    [data-testid="stHeader"] {
-        background: #ffffff !important;
-        color: #17332d !important;
-    }
-    [data-testid="stHeader"] * {
-        color: #17332d !important;
+    :root {
+        --ink: #111827;
+        --muted: #4b5563;
+        --line: #e3e8e6;
+        --accent: #0f766e;
+        --accent-soft: #e6f4f1;
     }
 
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #edf6f4 0%, #e7f1ef 100%);
-        border-right: 1px solid rgba(15,118,110,0.12);
-    }
-    [data-testid="stSidebar"] .block-container {
-        padding-top: 1.4rem !important;
-        padding-bottom: 1.2rem !important;
-    }
-    h1, h2, h3, h4, p, label { color: #17332d; }
-    h1 { font-size: 2.25rem !important; line-height: 1.08; }
-    h2 { font-size: 1.35rem !important; }
-    .brandline { color: #087f68; font-size: 0.73rem; font-weight: 800;
-                 letter-spacing: 0.12em; text-transform: uppercase; }
-    [data-testid="stImage"] img { border-radius: 16px; max-height: 220px; object-fit: cover; }
-        .card { background: rgba(255,255,255,0.96); border: 1px solid rgba(14,84,77,0.08); border-radius: 8px;
-            box-shadow: 0 8px 20px rgba(23,51,45,0.06); padding: 1rem 1.1rem; min-height: 8.5rem; }
-    .kpi { background: linear-gradient(135deg, #f7fbfa, #edf6f5); border: 1px solid rgba(8,127,104,0.12);
-           border-radius: 8px; padding: 1.1rem 1.1rem 0.9rem; box-shadow: 0 8px 20px rgba(7,94,85,0.05);
-           display: flex; flex-direction: column; justify-content: space-between; min-height: 146px; }
-    [data-testid="stSidebar"] .stSelectbox > div,
-    [data-testid="stSidebar"] .stMultiSelect > div,
-    [data-testid="stSidebar"] .stRadio > div,
-    [data-testid="stSidebar"] .stFileUploader > section {
+    /* ---------- Base: everything white, text black ---------- */
+    html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"],
+    [data-testid="stMainBlockContainer"], .main {
         background: #ffffff !important;
-        border: 1px solid rgba(15,118,110,0.18) !important;
-        border-radius: 12px !important;
+        color: var(--ink);
+        font-family: "Inter", "Segoe UI", "Trebuchet MS", sans-serif;
+    }
+    [data-testid="stMainBlockContainer"] {
+        padding-top: 1.6rem !important;
+        padding-bottom: 2.5rem !important;
+        max-width: 1400px;
+    }
+    h1, h2, h3, h4, p, label, li { color: var(--ink); }
+
+    /* ---------- Top ribbon: white, black text and icons ---------- */
+    [data-testid="stHeader"], header[data-testid="stHeader"] {
+        background: #ffffff !important;
+        border-bottom: 1px solid var(--line);
+        color: #000000 !important;
+    }
+    [data-testid="stHeader"] *,
+    [data-testid="stToolbar"] *,
+    [data-testid="stAppToolbar"] *,
+    [data-testid="stStatusWidget"] *,
+    [data-testid="stMainMenu"] *,
+    [data-testid="stSidebarCollapseButton"] *,
+    [data-testid="stExpandSidebarButton"] *,
+    [data-testid="collapsedControl"] * {
+        color: #000000 !important;
+        opacity: 1 !important;
+    }
+    [data-testid="stHeader"] button:hover,
+    [data-testid="stToolbar"] button:hover { background: #f1f5f4 !important; }
+    [data-testid="stHeader"] svg { color: #000000 !important; }
+
+    /* ---------- Sidebar ---------- */
+    [data-testid="stSidebar"], [data-testid="stSidebar"] > div {
+        background: #ffffff !important;
+        border-right: 1px solid var(--line);
+    }
+    [data-testid="stSidebar"] .block-container,
+    [data-testid="stSidebarUserContent"] {
+        padding-top: 1.2rem !important;
+    }
+    [data-testid="stSidebar"] h3 {
+        color: #000000 !important;
+        font-size: 1.05rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.02em;
+        padding-bottom: 0.6rem;
+        margin-bottom: 0.4rem;
+        border-bottom: 2px solid var(--accent);
+    }
+    [data-testid="stSidebar"] label, [data-testid="stSidebar"] label p,
+    [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p {
+        color: #000000 !important;
+        font-weight: 600 !important;
+        font-size: 0.86rem !important;
     }
 
-    /* White Parameters to display box */
-    [data-testid="stSidebar"] .stMultiSelect [data-baseweb="select"] {
+    /* Radio buttons */
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] {
         background: #ffffff !important;
-        color: #17332d !important;
+        border: 1px solid #cfd8d5 !important;
         border-radius: 10px !important;
+        padding: 0.45rem 0.7rem !important;
+        gap: 0.2rem !important;
     }
-    [data-testid="stSidebar"] .stMultiSelect [data-baseweb="select"] > div {
+    [data-testid="stRadio"] label p { color: #000000 !important; font-weight: 500 !important; }
+    label[data-baseweb="radio"]:has(input:checked) > div:first-child {
+        background-color: var(--accent) !important;
+        border-color: var(--accent) !important;
+    }
+
+    /* Multiselect / selectbox: white background, black text */
+    [data-baseweb="select"] > div {
         background: #ffffff !important;
-        color: #17332d !important;
-    }
-    [data-testid="stSidebar"] .stMultiSelect input {
-        color: #17332d !important;
-        background: #ffffff !important;
-    }
-    [data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"] {
-        background: #ffffff !important;
-        border: 1px solid rgba(15,118,110,0.25) !important;
-        color: #17332d !important;
-    }
-    [data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"] span {
-        color: #17332d !important;
-    }
-    .status-pill { display: inline-block; padding: 0.38rem 0.7rem; border-radius: 999px; font-size: 0.76rem;
-                   font-weight: 700; letter-spacing: 0.03em; }
-    .alert-box { background: linear-gradient(135deg, #fff5f5, #ffffff); border: 1px solid rgba(207,94,80,0.2);
-                 border-left: 4px solid #d04e4e; border-radius: 16px; padding: 0.9rem 1rem; }
-    .section-label { color: #5e7a75; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
-    .small-note { color: #54706b; font-size: 0.82rem; }
-    div[data-testid="stVerticalBlock"] > div:has(> div > .kpi) { display: flex; }
-    [data-testid="stFileUploaderDropzone"] {
-        border: 1.5px solid rgba(15,118,110,0.75) !important;
-        border-radius: 16px !important;
-        background: linear-gradient(180deg, #ffffff 0%, #f6fbfa 100%) !important;
-        box-shadow: none !important;
-        min-height: 92px !important;
-        padding: 0.7rem 0.9rem !important;
-    }
-    [data-testid="stFileUploaderDropzone"] > div:first-child {
-        color: #17332d !important;
-        font-weight: 700 !important;
-        font-size: 0.92rem !important;
-    }
-    [data-testid="stFileUploaderDropzone"] button {
+        border: 1px solid #cfd8d5 !important;
         border-radius: 10px !important;
-        background: linear-gradient(135deg, #0f766e, #0b5c54) !important;
-        border: none !important;
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        letter-spacing: 0.02em !important;
-        padding: 0.65rem 1.2rem !important;
-        box-shadow: none !important;
-        text-shadow: none !important;
+        color: #000000 !important;
+        min-height: 2.6rem;
     }
-    [data-testid="stFileUploaderDropzone"] button:hover,
-    [data-testid="baseButton-secondary"]:hover,
-    [data-testid="stBaseButton-secondary"]:hover {
-        background: linear-gradient(135deg, #0b665d, #0a554f) !important;
-        color: #ffffff !important;
-    }
-    .plotly-graph-div {
+    [data-baseweb="select"] input, [data-baseweb="select"] span { color: #000000 !important; }
+    [data-baseweb="select"] svg { fill: #000000 !important; color: #000000 !important; }
+    span[data-baseweb="tag"] {
+        background: var(--accent-soft) !important;
+        border: 1px solid #b7ddd6 !important;
         border-radius: 8px !important;
-        box-shadow: 0 10px 20px rgba(8,127,104,0.04) !important;
+        color: #0b3d37 !important;
     }
-    [data-testid="stHorizontalBlock"] { align-items: stretch; }
+    span[data-baseweb="tag"] span, span[data-baseweb="tag"] svg {
+        color: #0b3d37 !important; fill: #0b3d37 !important;
+    }
+    [data-baseweb="popover"], [data-baseweb="popover"] > div,
+    [data-baseweb="menu"], ul[role="listbox"] {
+        background: #ffffff !important;
+    }
+    [data-baseweb="popover"] li, [data-baseweb="menu"] li, ul[role="listbox"] li {
+        color: #000000 !important; background: #ffffff !important;
+    }
+    [data-baseweb="popover"] li:hover, ul[role="listbox"] li:hover,
+    ul[role="listbox"] li[aria-selected="true"] { background: #f1f5f4 !important; }
+
+    /* File uploader */
+    [data-testid="stFileUploaderDropzone"] {
+        background: #ffffff !important;
+        border: 1.5px dashed #9fb3ae !important;
+        border-radius: 12px !important;
+        min-height: 92px !important;
+        padding: 0.8rem 0.9rem !important;
+    }
+    [data-testid="stFileUploaderDropzone"] *,
+    [data-testid="stFileUploaderDropzoneInstructions"] * { color: #000000 !important; }
+    [data-testid="stFileUploaderDropzone"] button,
+    [data-testid="stFileUploaderDropzone"] button * {
+        background: var(--accent) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+    }
+    [data-testid="stFileUploaderDropzone"] button:hover { background: #0b5c54 !important; }
+    [data-testid="stFileUploader"] small { color: var(--muted) !important; }
+
+    /* ---------- Typography blocks ---------- */
+    .brandline { color: var(--accent); font-size: 0.72rem; font-weight: 800;
+                 letter-spacing: 0.14em; text-transform: uppercase; }
+    .page-header { display: flex; justify-content: space-between; align-items: center;
+                   gap: 1.5rem; margin: 0.3rem 0 1.4rem; flex-wrap: wrap; }
+    .page-title { color: #000000; font-size: 2rem; font-weight: 800; line-height: 1.15;
+                  margin: 0.25rem 0 0.4rem; padding: 0; letter-spacing: -0.01em; }
+    .page-sub { color: var(--muted); font-size: 0.9rem; }
+    .section-label { color: #374151; font-size: 0.72rem; font-weight: 700;
+                     text-transform: uppercase; letter-spacing: 0.09em; }
+    .section-gap { height: 1.3rem; }
+    .small-note { color: var(--muted); font-size: 0.84rem; line-height: 1.45; }
+
+    /* ---------- Cards ---------- */
+    .card, .kpi {
+        background: #ffffff; border: 1px solid var(--line); border-radius: 10px;
+        box-shadow: 0 1px 3px rgba(17,24,39,0.06); padding: 1rem 1.15rem;
+    }
+    .card { flex: 1; }
+    .kpi { position: relative; overflow: hidden; display: flex; flex-direction: column;
+           justify-content: space-between; gap: 0.35rem; min-height: 138px; }
+    .kpi::before { content: ""; position: absolute; left: 0; top: 0; right: 0; height: 3px;
+                   background: var(--accent-line, var(--accent)); }
+    .kpi-value { font-size: 2.1rem; font-weight: 800; line-height: 1.1; }
+    .updated { min-width: 270px; flex: 0 0 auto; }
+
+    .kpi-grid { display: grid; gap: 1rem; margin-bottom: 0.4rem; }
+    .kpi-grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .kpi-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .info-grid { display: grid; grid-template-columns: 1fr 1.7fr; gap: 1rem; align-items: stretch; }
+    .info-cell { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .status-pill { display: inline-block; padding: 0.3rem 0.7rem; border-radius: 999px;
+                   font-size: 0.76rem; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; }
+    .banner { display: flex; align-items: center; gap: 0.75rem; background: #ffffff;
+              border: 1px solid var(--line); border-left: 5px solid var(--accent);
+              border-radius: 10px; padding: 0.85rem 1.1rem; margin-bottom: 1.2rem;
+              box-shadow: 0 1px 3px rgba(17,24,39,0.06); color: #000000; font-weight: 600; }
+    .banner .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex: 0 0 auto; }
+
+    /* Bordered chart containers */
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background: #ffffff !important;
+        border: 1px solid var(--line) !important;
+        border-radius: 10px !important;
+        box-shadow: 0 1px 3px rgba(17,24,39,0.06);
+        padding: 0.35rem 0.5rem 0.2rem;
+    }
+    [data-testid="stHorizontalBlock"] { align-items: stretch; gap: 1rem; }
+    .js-plotly-plot, .plotly-graph-div { background: #ffffff !important; }
+
+    /* ---------- HTML tables ---------- */
+    .table-wrap { border: 1px solid var(--line); border-radius: 10px; overflow: auto;
+                  background: #ffffff; box-shadow: 0 1px 3px rgba(17,24,39,0.06); }
+    table.clean-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+    .clean-table thead th { position: sticky; top: 0; background: #f7f9f8; color: #000000;
+                            text-align: left; font-weight: 700; font-size: 0.74rem;
+                            text-transform: uppercase; letter-spacing: 0.06em;
+                            padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--line); }
+    .clean-table td { padding: 0.62rem 0.9rem; color: var(--ink);
+                      border-bottom: 1px solid #eef2f1; }
+    .clean-table tbody tr:last-child td { border-bottom: none; }
+    .clean-table tbody tr:hover td { background: #fafcfb; }
+
+    /* ---------- Buttons ---------- */
+    [data-testid="stDownloadButton"] button {
+        background: #ffffff !important; color: #000000 !important;
+        border: 1px solid var(--accent) !important; border-radius: 8px !important;
+        font-weight: 600 !important; width: 100%;
+    }
+    [data-testid="stDownloadButton"] button * { color: #000000 !important; }
+    [data-testid="stDownloadButton"] button:hover { background: var(--accent-soft) !important; }
+
+    .footer-note { color: var(--muted); font-size: 0.78rem; text-align: center;
+                   margin-top: 1.6rem; padding-top: 0.9rem; border-top: 1px solid var(--line); }
+
+    /* ---------- Responsive ---------- */
     @media (max-width: 1000px) {
-        [data-testid="stMainBlockContainer"] {
-            padding-left: 1.5rem !important;
-            padding-right: 1.5rem !important;
-        }
-        [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
-            width: 100% !important;
-            min-width: 0 !important;
-            flex: 1 1 100% !important;
-        }
-        [data-testid="stHorizontalBlock"]:has(.kpi) { flex-wrap: wrap !important; }
-        [data-testid="stHorizontalBlock"]:has(.kpi) > [data-testid="stColumn"] {
-            width: calc(50% - 0.5rem) !important;
-            min-width: calc(50% - 0.5rem) !important;
-            flex: 1 1 calc(50% - 0.5rem) !important;
-        }
+        .kpi-grid.cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .info-grid { grid-template-columns: 1fr; }
+        .page-title { font-size: 1.6rem; }
     }
     @media (max-width: 640px) {
-        [data-testid="stMainBlockContainer"] {
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-        }
-        [data-testid="stHorizontalBlock"]:has(.kpi) > [data-testid="stColumn"] {
-            width: 100% !important;
-            min-width: 0 !important;
-            flex-basis: 100% !important;
-        }
+        .kpi-grid.cols-4, .kpi-grid.cols-3 { grid-template-columns: 1fr; }
+        [data-testid="stMainBlockContainer"] { padding-left: 1rem !important; padding-right: 1rem !important; }
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
+TONE_COLORS = {
+    "healthy": "#0f766e",
+    "warning": "#d97706",
+    "critical": "#dc2626",
+    "neutral": "#2563eb",
+}
+PILL_STYLES = {
+    "Healthy": ("#0f766e", "#e6f4f1"),
+    "Normal": ("#0f766e", "#e6f4f1"),
+    "Warning": ("#b45309", "#fef3c7"),
+    "Abnormal": ("#b91c1c", "#fee2e2"),
+    "Critical": ("#b91c1c", "#fee2e2"),
+    "Unknown": ("#475569", "#f1f5f9"),
+}
+CHART_FONT = {"family": "Inter, Segoe UI, Arial, sans-serif", "color": "#111827", "size": 12}
 
-def metric_card(title, value, delta, tone="#0f766e"):
-    color = {
-        "healthy": "#0f766e",
-        "warning": "#d97706",
-        "critical": "#dc2626",
-        "neutral": "#2563eb",
-    }.get(tone, tone)
+
+def kpi_card(title, value, note, tone="healthy"):
+    color = TONE_COLORS.get(tone, tone)
+    return (
+        f'<div class="kpi" style="--accent-line:{color};">'
+        f'<div class="section-label">{escape(str(title))}</div>'
+        f'<div class="kpi-value" style="color:{color};">{escape(str(value))}</div>'
+        f'<div class="small-note">{escape(str(note))}</div></div>'
+    )
+
+
+def kpi_grid(cards):
     st.markdown(
-        f"""
-        <div class="kpi">
-            <div class="section-label">{title}</div>
-            <div style="font-size:2.1rem; font-weight:800; color:{color}; margin-top:0.3rem;">{value}</div>
-            <div class="small-note" style="margin-top:0.2rem;">{delta}</div>
-        </div>
-        """,
+        f'<div class="kpi-grid cols-{len(cards)}">{"".join(cards)}</div>',
         unsafe_allow_html=True,
     )
+
+
+def section_label(text):
+    st.markdown(f'<div class="section-label">{escape(text)}</div>', unsafe_allow_html=True)
+
+
+def section_gap():
+    st.markdown('<div class="section-gap"></div>', unsafe_allow_html=True)
+
+
+def pill(text, fg, bg):
+    return f'<span class="status-pill" style="background:{bg}; color:{fg};">{escape(str(text))}</span>'
+
+
+def html_table(df, pill_columns=(), max_height=None):
+    head = "".join(f"<th>{escape(str(column))}</th>" for column in df.columns)
+    rows = []
+    for _, row in df.iterrows():
+        cells = []
+        for column in df.columns:
+            value = row[column]
+            text = "" if pd.isna(value) else str(value)
+            if column in pill_columns and text in PILL_STYLES:
+                fg, bg = PILL_STYLES[text]
+                cell = pill(text, fg, bg)
+            else:
+                cell = escape(text)
+            cells.append(f"<td>{cell}</td>")
+        rows.append("<tr>" + "".join(cells) + "</tr>")
+    style = f' style="max-height:{max_height}px;"' if max_height else ""
+    return (
+        f'<div class="table-wrap"{style}><table class="clean-table">'
+        f"<thead><tr>{head}</tr></thead><tbody>{''.join(rows)}</tbody></table></div>"
+    )
+
+
+def style_figure(figure, height, margin=None, legend_bottom=False):
+    figure.update_layout(
+        template="plotly_white",
+        height=height,
+        margin=margin or {"l": 12, "r": 12, "t": 10, "b": 10},
+        paper_bgcolor="#ffffff",
+        plot_bgcolor="#ffffff",
+        font=CHART_FONT,
+        hoverlabel={"bgcolor": "#ffffff", "font": {"color": "#111827"}},
+        legend={
+            "orientation": "h",
+            "font": {"color": "#111827", "size": 12},
+            "bgcolor": "rgba(255,255,255,0)",
+            **({"y": -0.22, "x": 0, "yanchor": "top"} if legend_bottom else {"y": 1.12, "x": 0}),
+        },
+    )
+    figure.update_xaxes(
+        showline=True, linecolor="#9ca3af", tickfont={"color": "#111827"},
+        title_font={"color": "#111827"}, gridcolor="#eef2f1", zeroline=False,
+    )
+    figure.update_yaxes(
+        showline=True, linecolor="#9ca3af", tickfont={"color": "#111827"},
+        title_font={"color": "#111827"}, gridcolor="#eef2f1", zeroline=False,
+    )
+    return figure
 
 
 @st.cache_data
@@ -499,225 +661,165 @@ iso_model.fit(feature_matrix)
 results["Anomaly Flag"] = iso_model.predict(feature_matrix) == -1
 results["Anomaly Score"] = -iso_model.score_samples(feature_matrix)
 
-alert_value = selected_health if not results.empty else 0
-alert_risk = selected_risk if not results.empty else 0
 if condition_tone in {"warning", "critical"}:
-    st.error(
-        "Maintenance Required — follow-up inspection recommended for the selected engine condition.",
-    )
+    banner_color = TONE_COLORS[condition_tone]
+    banner_text = "Maintenance required — follow-up inspection recommended for the selected engine condition."
 else:
-    st.success("Engine system remains within normal operating range.")
+    banner_color = TONE_COLORS["healthy"]
+    banner_text = "Engine system remains within normal operating range."
+st.markdown(
+    f'<div class="banner" style="border-left-color:{banner_color};">'
+    f'<span class="dot" style="background:{banner_color};"></span>{escape(banner_text)}</div>',
+    unsafe_allow_html=True,
+)
 
-header_left, header_right = st.columns([2.2, 1])
-with header_left:
-    st.markdown('<div class="brandline">POWERTRAIN INTELLIGENCE</div>', unsafe_allow_html=True)
-    st.title("Engine Health & Predictive Maintenance Dashboard")
-    st.caption(f"Operational view · {engine_name} · Source: {source_label}")
-with header_right:
-    st.markdown(
-        f"<div class='card' style='margin-top: 1.2rem;'><div class='section-label'>Last updated</div><div style='font-size:1.2rem; font-weight:700; color:#17332d;'>{pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}</div><div class='small-note'>Records: {len(results)} | {len(used_features)} sensors</div></div>",
-        unsafe_allow_html=True,
-    )
+# ---------------- Header ----------------
+st.markdown(
+    '<div class="page-header"><div>'
+    '<div class="brandline">Powertrain Intelligence</div>'
+    '<h1 class="page-title">Engine Health &amp; Predictive Maintenance Dashboard</h1>'
+    f'<div class="page-sub">Operational view · {escape(engine_name)} · Source: {escape(str(source_label))}</div>'
+    '</div>'
+    '<div class="card updated"><div class="section-label">Last updated</div>'
+    f'<div style="font-size:1.2rem; font-weight:700; color:#000000; margin:0.25rem 0;">{pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")}</div>'
+    f'<div class="small-note">Records: {len(results)} | {len(used_features)} sensors</div></div></div>',
+    unsafe_allow_html=True,
+)
 
-kpi_columns = st.columns(4)
-with kpi_columns[0]:
-    metric_card(
-        "Engine Health Score",
-        f"{selected_health:.1f}%",
-        f"Status: {condition_label}",
-        tone=condition_tone,
-    )
-with kpi_columns[1]:
-    metric_card(
-        "Estimated RUL",
-        f"{selected_rul:.1f}%",
-        "Projected remaining service life",
-        tone=condition_tone,
-    )
-with kpi_columns[2]:
-    metric_card(
-        "Failure Risk",
-        f"{selected_risk:.1f}%",
-        "Risk index based on health model",
-        tone="warning" if selected_risk >= 35 else "healthy",
-    )
-with kpi_columns[3]:
-    metric_card(
-        "Condition",
-        condition_label,
-        f"Priority: {priority_level}",
-        tone=condition_tone,
-    )
+# ---------------- KPI row ----------------
+kpi_grid([
+    kpi_card("Engine Health Score", f"{selected_health:.1f}%", f"Status: {condition_label}", condition_tone),
+    kpi_card("Estimated RUL", f"{selected_rul:.1f}%", "Projected remaining service life", condition_tone),
+    kpi_card("Failure Risk", f"{selected_risk:.1f}%", "Risk index based on health model",
+             "warning" if selected_risk >= 35 else "healthy"),
+    kpi_card("Condition", condition_label, f"Priority: {priority_level}", condition_tone),
+])
 
-status_col, recommendation_col = st.columns([1.15, 1.85])
-with status_col:
-    st.markdown('<div class="section-label">Condition Indicator</div>', unsafe_allow_html=True)
-    state_color = {"healthy": "#0f766e", "warning": "#d97706", "critical": "#dc2626"}[condition_tone]
-    st.markdown(
-        f"""
-        <div class="card" style="margin-top:0.5rem; background: linear-gradient(135deg, #ffffff, #f3fbfa);">
-            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.6rem;">
-                <span class="status-pill" style="background:{state_color}20; color:{state_color};">{condition_label}</span>
-            </div>
-            <div class="small-note">Health score: <strong>{selected_health:.1f}%</strong></div>
-            <div class="small-note">Failure risk: <strong>{selected_risk:.1f}%</strong></div>
-            <div class="small-note">Maintenance interval: <strong>{maintenance_interval}</strong></div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-with recommendation_col:
-    st.markdown('<div class="section-label">Maintenance Recommendation</div>', unsafe_allow_html=True)
-    st.markdown(
-        f"""
-        <div class="card" style="margin-top:0.5rem;">
-            <div style="font-weight:800; color:#17332d; margin-bottom: 0.5rem;">Detected issue</div>
-            <div class="small-note" style="margin-bottom: 0.8rem;">{recommendation_action}</div>
-            <div style="display:flex; gap:0.8rem; flex-wrap:wrap;">
-                <span class="status-pill" style="background:#edf5f4; color:#0f766e;">Priority: {priority_level}</span>
-                <span class="status-pill" style="background:#eef3ff; color:#2563eb;">Interval: {maintenance_interval}</span>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+section_gap()
+state_color = TONE_COLORS[condition_tone]
+st.markdown(
+    '<div class="info-grid">'
+    '<div class="info-cell"><div class="section-label">Condition Indicator</div>'
+    '<div class="card">'
+    f'<div style="margin-bottom:0.7rem;">{pill(condition_label, state_color, state_color + "20")}</div>'
+    f'<div class="small-note">Health score: <strong style="color:#000;">{selected_health:.1f}%</strong></div>'
+    f'<div class="small-note">Failure risk: <strong style="color:#000;">{selected_risk:.1f}%</strong></div>'
+    f'<div class="small-note">Maintenance interval: <strong style="color:#000;">{escape(maintenance_interval)}</strong></div>'
+    '</div></div>'
+    '<div class="info-cell"><div class="section-label">Maintenance Recommendation</div>'
+    '<div class="card">'
+    '<div style="font-weight:800; color:#000; margin-bottom:0.45rem;">Detected issue</div>'
+    f'<div class="small-note" style="margin-bottom:0.9rem;">{escape(recommendation_action)}</div>'
+    '<div style="display:flex; gap:0.6rem; flex-wrap:wrap;">'
+    f'{pill("Priority: " + priority_level, "#0f766e", "#e6f4f1")}'
+    f'{pill("Interval: " + maintenance_interval, "#1d4ed8", "#e8efff")}'
+    '</div></div></div></div>',
+    unsafe_allow_html=True,
+)
 
+# ---------------- Trend + anomaly ----------------
+section_gap()
 trend_col, anomaly_col = st.columns([1.7, 1])
 with trend_col:
-    st.markdown('<div class="section-label">Trend Analysis</div>', unsafe_allow_html=True)
-    if "timestamp" in results.columns and not results.empty:
-        chart_df = results[["timestamp"] + parameter_filter + ["Estimated Health Score", "Estimated RUL Percent"]].copy()
-        chart_df = chart_df.sort_values("timestamp").dropna(subset=["timestamp"]).reset_index(drop=True)
-        if chart_df.empty:
+    with st.container(border=True):
+        section_label("Trend Analysis")
+        if "timestamp" in results.columns and not results.empty:
             chart_df = results[["timestamp"] + parameter_filter + ["Estimated Health Score", "Estimated RUL Percent"]].copy()
-        chart_fig = go.Figure()
-        palette = ["#0f766e", "#2563eb", "#f59e0b", "#14b8a6", "#7c3aed", "#ef4444"]
-        for idx, parameter in enumerate(parameter_filter):
+            chart_df = chart_df.sort_values("timestamp").dropna(subset=["timestamp"]).reset_index(drop=True)
+            if chart_df.empty:
+                chart_df = results[["timestamp"] + parameter_filter + ["Estimated Health Score", "Estimated RUL Percent"]].copy()
+            line_mode = "lines" if len(chart_df) > 150 else "lines+markers"
+            chart_fig = go.Figure()
+            palette = ["#2563eb", "#f59e0b", "#7c3aed", "#0ea5e9", "#db2777", "#64748b"]
+            for idx, parameter in enumerate(parameter_filter):
+                chart_fig.add_trace(
+                    go.Scatter(
+                        x=chart_df["timestamp"], y=chart_df[parameter], mode=line_mode, name=parameter,
+                        line={"color": palette[idx % len(palette)], "width": 2},
+                        marker={"size": 4, "color": palette[idx % len(palette)]},
+                    )
+                )
             chart_fig.add_trace(
                 go.Scatter(
-                    x=chart_df["timestamp"],
-                    y=chart_df[parameter],
-                    mode="lines+markers",
-                    name=parameter,
-                    line={"color": palette[idx % len(palette)], "width": 2.4},
-                    marker={"size": 5, "color": palette[idx % len(palette)]},
-                    line_shape="spline",
+                    x=chart_df["timestamp"], y=chart_df["Estimated Health Score"], mode=line_mode,
+                    name="Health Score", yaxis="y2",
+                    line={"color": "#0f766e", "width": 2.8}, marker={"size": 4, "color": "#0f766e"},
                 )
             )
-        chart_fig.add_trace(
-            go.Scatter(
-                x=chart_df["timestamp"],
-                y=chart_df["Estimated Health Score"],
-                mode="lines+markers",
-                name="Health Score",
-                yaxis="y2",
-                line={"dash": "solid", "color": "#0f766e", "width": 2.8},
-                marker={"size": 5, "color": "#0f766e"},
-                line_shape="spline",
+            chart_fig.add_trace(
+                go.Scatter(
+                    x=chart_df["timestamp"], y=chart_df["Estimated RUL Percent"], mode=line_mode,
+                    name="RUL", yaxis="y2",
+                    line={"dash": "dot", "color": "#111827", "width": 2.4}, marker={"size": 4, "color": "#111827"},
+                )
             )
-        )
-        chart_fig.add_trace(
-            go.Scatter(
-                x=chart_df["timestamp"],
-                y=chart_df["Estimated RUL Percent"],
-                mode="lines+markers",
-                name="RUL",
-                yaxis="y2",
-                line={"dash": "dot", "color": "#2563eb", "width": 2.8},
-                marker={"size": 5, "color": "#2563eb"},
-                line_shape="spline",
+            style_figure(chart_fig, 340, margin={"l": 12, "r": 12, "t": 10, "b": 10}, legend_bottom=True)
+            chart_fig.update_layout(
+                xaxis={"title": "Date", "showgrid": False, "tickformat": "%b %Y", "type": "date"},
+                yaxis={"title": "Sensor values"},
+                yaxis2={"title": "Health / RUL (%)", "overlaying": "y", "side": "right", "showgrid": False},
+                hovermode="x unified",
             )
-        )
-        chart_fig.update_layout(
-            height=365,
-            legend={"orientation": "h", "y": 1.18, "x": 0},
-            margin={"l": 12, "r": 12, "t": 12, "b": 12},
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="#ffffff",
-            xaxis={
-                "title": "Year",
-                "showgrid": False,
-                "tickformat": "%Y",
-                "type": "date",
-            },
-            yaxis={"title": "Sensor values", "gridcolor": "#eef2f2"},
-            yaxis2={"title": "Health / RUL (%)", "overlaying": "y", "side": "right", "gridcolor": "#eef2f2"},
-            hovermode="x unified",
-        )
-        st.plotly_chart(chart_fig, use_container_width=True)
+            st.plotly_chart(chart_fig, use_container_width=True)
 with anomaly_col:
-    anomaly_total = int(results["Anomaly Flag"].sum())
-    st.markdown('<div class="section-label">Fault / Anomaly Detection</div>', unsafe_allow_html=True)
-    st.markdown(
-        f"""
-        <div class="card" style="margin-top:0.5rem;">
-            <div style="font-size:2.2rem; font-weight:800; color:#17332d;">{anomaly_total}</div>
-            <div class="small-note">anomalous records flagged</div>
-            <div style="margin-top:0.8rem;" class="small-note">Isolation Forest model score indicates drift from expected engine behavior.</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    anomaly_bar = go.Figure(
-        go.Bar(
-            x=["Healthy", "Warning", "Critical"],
-            y=[
-                int((results["Health State"] == "Healthy").sum()),
-                int((results["Health State"] == "Warning").sum()),
-                int((results["Health State"] == "Critical").sum()),
-            ],
-            marker_color=["#0f766e", "#f59e0b", "#dc2626"],
+    with st.container(border=True):
+        section_label("Fault / Anomaly Detection")
+        anomaly_total = int(results["Anomaly Flag"].sum())
+        anomaly_pct = 100 * anomaly_total / max(len(results), 1)
+        st.markdown(
+            '<div style="min-height:92px; margin:0.35rem 0 0.2rem;">'
+            f'<div style="font-size:2.2rem; font-weight:800; color:#000; line-height:1.1;">{anomaly_total}'
+            f'<span style="font-size:0.9rem; font-weight:600; color:#4b5563;"> &nbsp;({anomaly_pct:.1f}% of records)</span></div>'
+            '<div class="small-note">anomalous records flagged by Isolation Forest — drift from expected engine behavior.</div>'
+            '</div>',
+            unsafe_allow_html=True,
         )
-    )
-    anomaly_bar.update_layout(
-        height=210,
-        margin={"l": 16, "r": 16, "t": 12, "b": 12},
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="#ffffff",
-        xaxis={"title": "Condition"},
-        yaxis={"title": "Records"},
-    )
-    st.plotly_chart(anomaly_bar, use_container_width=True)
+        state_counts = [int((results["Health State"] == s).sum()) for s in ("Healthy", "Warning", "Critical")]
+        anomaly_bar = go.Figure(
+            go.Bar(
+                x=["Healthy", "Warning", "Critical"], y=state_counts, text=state_counts,
+                textposition="outside", cliponaxis=False,
+                marker_color=["#0f766e", "#f59e0b", "#dc2626"],
+            )
+        )
+        style_figure(anomaly_bar, 238, margin={"l": 12, "r": 12, "t": 22, "b": 10})
+        anomaly_bar.update_layout(xaxis={"title": "Condition"}, yaxis={"title": "Records"}, showlegend=False)
+        st.plotly_chart(anomaly_bar, use_container_width=True)
 
+# ---------------- Importance + actual vs predicted ----------------
+section_gap()
 importance_col, comparison_col = st.columns([1, 1])
 with importance_col:
-    st.markdown('<div class="section-label">Feature Importance</div>', unsafe_allow_html=True)
-    top_sensors = ranked_sensors[:6]
-    y_vals = [item[0] for item in top_sensors][::-1]
-    x_vals = [max(item[1], 0) for item in top_sensors][::-1]
-    importance_fig = go.Figure(go.Bar(x=x_vals, y=y_vals, orientation="h", marker_color="#087f68"))
-    importance_fig.update_layout(
-        height=260,
-        margin={"l": 16, "r": 16, "t": 6, "b": 12},
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="#ffffff",
-        xaxis={"title": "Relative importance"},
-        yaxis={"automargin": True},
-    )
-    st.plotly_chart(importance_fig, use_container_width=True)
+    with st.container(border=True):
+        section_label("Feature Importance")
+        top_sensors = ranked_sensors[:6]
+        y_vals = [item[0] for item in top_sensors][::-1]
+        x_vals = [max(item[1], 0) for item in top_sensors][::-1]
+        importance_fig = go.Figure(go.Bar(x=x_vals, y=y_vals, orientation="h", marker_color="#0f766e"))
+        style_figure(importance_fig, 280)
+        importance_fig.update_layout(xaxis={"title": "Relative importance"}, yaxis={"automargin": True}, showlegend=False)
+        st.plotly_chart(importance_fig, use_container_width=True)
 with comparison_col:
-    st.markdown('<div class="section-label">Actual vs Predicted Health / RUL</div>', unsafe_allow_html=True)
-    comparison_fig = go.Figure()
-    comparison_fig.add_trace(go.Scatter(x=np.arange(len(actual_values)), y=actual_values, mode="lines+markers", name="Actual Health", line={"color": "#0f766e"}))
-    comparison_fig.add_trace(go.Scatter(x=np.arange(len(predicted_values)), y=predicted_values, mode="lines+markers", name="Predicted Health", line={"color": "#2563eb"}))
-    comparison_fig.update_layout(
-        height=260,
-        margin={"l": 16, "r": 16, "t": 6, "b": 12},
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="#ffffff",
-        xaxis={"title": "Record"},
-        yaxis={"title": "Health (%)"},
-    )
-    st.plotly_chart(comparison_fig, use_container_width=True)
+    with st.container(border=True):
+        section_label("Actual vs Predicted Health / RUL")
+        comparison_fig = go.Figure()
+        comparison_fig.add_trace(go.Scatter(x=np.arange(len(actual_values)), y=actual_values, mode="lines", name="Actual Health", line={"color": "#0f766e", "width": 2}))
+        comparison_fig.add_trace(go.Scatter(x=np.arange(len(predicted_values)), y=predicted_values, mode="lines", name="Predicted Health", line={"color": "#2563eb", "width": 2}))
+        style_figure(comparison_fig, 280, legend_bottom=False)
+        comparison_fig.update_layout(xaxis={"title": "Record"}, yaxis={"title": "Health (%)"})
+        st.plotly_chart(comparison_fig, use_container_width=True)
 
-performance_cols = st.columns(3)
-with performance_cols[0]:
-    metric_card("MAE", f"{mae:.2f}", "Mean absolute error", tone="neutral")
-with performance_cols[1]:
-    metric_card("RMSE", f"{rmse:.2f}", "Root mean squared error", tone="neutral")
-with performance_cols[2]:
-    metric_card("R²", f"{r2:.3f}", "Model fit score", tone="healthy")
+# ---------------- Model performance ----------------
+section_gap()
+section_label("Model Performance")
+st.markdown('<div style="height:0.5rem;"></div>', unsafe_allow_html=True)
+kpi_grid([
+    kpi_card("MAE", f"{mae:.2f}", "Mean absolute error", "neutral"),
+    kpi_card("RMSE", f"{rmse:.2f}", "Root mean squared error", "neutral"),
+    kpi_card("R²", f"{r2:.3f}", "Model fit score", "healthy"),
+])
 
+# ---------------- Sensor status ----------------
 sensor_status = []
 for feature in used_features:
     value = float(selected_record[feature]) if feature in selected_record.index and pd.notna(selected_record[feature]) else np.nan
@@ -736,26 +838,21 @@ for feature in used_features:
         status_value = "Normal"
     sensor_status.append({"Parameter": feature, "Value": value, "Range": f"{q10:.2f} – {q90:.2f}", "Status": status_value})
 
-sensor_status_df = pd.DataFrame(sensor_status)
-
-st.markdown('<div class="section-label">Sensor Status Panel</div>', unsafe_allow_html=True)
-status_table = sensor_status_df[["Parameter", "Value", "Range", "Status"]].copy()
+status_table = pd.DataFrame(sensor_status)[["Parameter", "Value", "Range", "Status"]].copy()
 status_table["Value"] = status_table["Value"].map(lambda v: "" if pd.isna(v) else f"{v:.2f}")
-st.dataframe(
-    status_table,
-    use_container_width=True,
-    hide_index=True,
-    column_config={
-        "Status": st.column_config.TextColumn(width="small"),
-        "Range": st.column_config.TextColumn(width="medium"),
-    },
-)
 
-st.markdown('<div class="section-label">Historical Records</div>', unsafe_allow_html=True)
+section_gap()
+section_label("Sensor Status Panel")
+st.markdown('<div style="height:0.5rem;"></div>', unsafe_allow_html=True)
+st.markdown(html_table(status_table, pill_columns=("Status",), max_height=430), unsafe_allow_html=True)
+
+# ---------------- Historical records ----------------
+section_gap()
+section_label("Historical Records")
+st.markdown('<div style="height:0.5rem;"></div>', unsafe_allow_html=True)
 summary_table = results[["Vehicle Test ID", "timestamp", "Estimated Health Score", "Estimated RUL Percent", "Failure Risk %", "Health State"]].copy()
 summary_table.rename(
     columns={
-        "Vehicle Test ID": "Vehicle Test ID",
         "timestamp": "Timestamp",
         "Estimated Health Score": "Health Score",
         "Estimated RUL Percent": "RUL",
@@ -765,18 +862,15 @@ summary_table.rename(
     inplace=True,
 )
 summary_table = summary_table.head(12)
-summary_table["Timestamp"] = summary_table["Timestamp"].dt.strftime("%b %d %H:%M")
-st.dataframe(summary_table, use_container_width=True, hide_index=True)
+summary_table["Timestamp"] = summary_table["Timestamp"].dt.strftime("%b %d %Y %H:%M")
+for numeric_col in ("Health Score", "RUL", "Risk"):
+    summary_table[numeric_col] = summary_table[numeric_col].map(lambda v: f"{v:.1f}%")
+st.markdown(html_table(summary_table, pill_columns=("Maintenance Status",)), unsafe_allow_html=True)
 
+# ---------------- Export ----------------
 report_df = results[[
-    "Vehicle Test ID",
-    "timestamp",
-    "Estimated Health Score",
-    "Estimated RUL Percent",
-    "Failure Risk %",
-    "Health State",
-    "Anomaly Flag",
-    *used_features,
+    "Vehicle Test ID", "timestamp", "Estimated Health Score", "Estimated RUL Percent",
+    "Failure Risk %", "Health State", "Anomaly Flag", *used_features,
 ]].copy()
 report_df.rename(columns={"timestamp": "Timestamp"}, inplace=True)
 report_df["Timestamp"] = report_df["Timestamp"].dt.strftime("%b %d %H:%M")
@@ -790,22 +884,24 @@ with pd.ExcelWriter(excel_buffer, engine="openpyxl") as writer:
     report_df.to_excel(writer, index=False)
 excel_buffer.seek(0)
 
-button_col1, button_col2 = st.columns([1, 1])
+section_gap()
+section_label("Export")
+st.markdown('<div style="height:0.5rem;"></div>', unsafe_allow_html=True)
+button_col1, button_col2, _spacer = st.columns([1, 1, 2])
 with button_col1:
     st.download_button(
-        label="Download Report (CSV)",
-        data=csv_buffer,
-        file_name="engine_health_report.csv",
-        mime="text/csv",
+        label="Download Report (CSV)", data=csv_buffer,
+        file_name="engine_health_report.csv", mime="text/csv",
     )
 with button_col2:
     st.download_button(
-        label="Export Results (Excel)",
-        data=excel_buffer,
+        label="Export Results (Excel)", data=excel_buffer,
         file_name="engine_health_report.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
 
-st.caption(
-    f"Data coverage: {len(results)} records • Model trained on {engine_name} sensors • Last refresh: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}"
+st.markdown(
+    f'<div class="footer-note">Data coverage: {len(results)} records • Model trained on {escape(engine_name)} sensors • '
+    f'Last refresh: {pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")}</div>',
+    unsafe_allow_html=True,
 )
