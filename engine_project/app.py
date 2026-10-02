@@ -36,8 +36,8 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    html, body, [class*="st"], [data-testid="stMarkdownContainer"], [data-testid="stDataFrame"], .stSelectbox, .stDateInput, .stFileUploader, .stButton, .stRadio, .stMultiSelect {
-        font-family: "Times New Roman", Times, serif !important;
+    html, body {
+        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
     }
     .stApp { background: linear-gradient(180deg, #f3f9f7 0%, #eef5f4 100%); color: #17332d; }
     [data-testid="stSidebar"] {
@@ -54,10 +54,10 @@ st.markdown(
     .brandline { color: #087f68; font-size: 0.73rem; font-weight: 800;
                  letter-spacing: 0.12em; text-transform: uppercase; }
     [data-testid="stImage"] img { border-radius: 16px; max-height: 220px; object-fit: cover; }
-    .card { background: rgba(255,255,255,0.96); border: 1px solid rgba(14,84,77,0.08); border-radius: 18px;
-            box-shadow: 0 8px 20px rgba(23,51,45,0.06); padding: 1rem 1.1rem; }
+        .card { background: rgba(255,255,255,0.96); border: 1px solid rgba(14,84,77,0.08); border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(23,51,45,0.06); padding: 1rem 1.1rem; min-height: 8.5rem; }
     .kpi { background: linear-gradient(135deg, #f7fbfa, #edf6f5); border: 1px solid rgba(8,127,104,0.12);
-           border-radius: 18px; padding: 1.1rem 1.1rem 0.9rem; box-shadow: 0 8px 20px rgba(7,94,85,0.05);
+           border-radius: 8px; padding: 1.1rem 1.1rem 0.9rem; box-shadow: 0 8px 20px rgba(7,94,85,0.05);
            display: flex; flex-direction: column; justify-content: space-between; min-height: 146px; }
     [data-testid="stSidebar"] .stSelectbox > div,
     [data-testid="stSidebar"] .stMultiSelect > div,
@@ -105,8 +105,37 @@ st.markdown(
         color: #ffffff !important;
     }
     .plotly-graph-div {
-        border-radius: 16px !important;
+        border-radius: 8px !important;
         box-shadow: 0 10px 20px rgba(8,127,104,0.04) !important;
+    }
+    [data-testid="stHorizontalBlock"] { align-items: stretch; }
+    @media (max-width: 1000px) {
+        [data-testid="stMainBlockContainer"] {
+            padding-left: 1.5rem !important;
+            padding-right: 1.5rem !important;
+        }
+        [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+            width: 100% !important;
+            min-width: 0 !important;
+            flex: 1 1 100% !important;
+        }
+        [data-testid="stHorizontalBlock"]:has(.kpi) { flex-wrap: wrap !important; }
+        [data-testid="stHorizontalBlock"]:has(.kpi) > [data-testid="stColumn"] {
+            width: calc(50% - 0.5rem) !important;
+            min-width: calc(50% - 0.5rem) !important;
+            flex: 1 1 calc(50% - 0.5rem) !important;
+        }
+    }
+    @media (max-width: 640px) {
+        [data-testid="stMainBlockContainer"] {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+        [data-testid="stHorizontalBlock"]:has(.kpi) > [data-testid="stColumn"] {
+            width: 100% !important;
+            min-width: 0 !important;
+            flex-basis: 100% !important;
+        }
     }
     </style>
     """,
@@ -441,11 +470,10 @@ alert_value = selected_health if not results.empty else 0
 alert_risk = selected_risk if not results.empty else 0
 if condition_tone in {"warning", "critical"}:
     st.error(
-        "⚠️ Maintenance Required — follow-up inspection recommended for the selected engine condition.",
-        icon="🚨",
+        "Maintenance Required — follow-up inspection recommended for the selected engine condition.",
     )
 else:
-    st.success("✅ Engine system remains within normal operating range.", icon="✅")
+    st.success("Engine system remains within normal operating range.")
 
 header_left, header_right = st.columns([2.2, 1])
 with header_left:
