@@ -40,16 +40,6 @@ st.markdown(
         font-family: "Trebuchet MS", "Segoe UI", sans-serif;
     }
     .stApp { background: linear-gradient(180deg, #f3f9f7 0%, #eef5f4 100%); color: #17332d; }
-
-    /* White upper Streamlit header area */
-    [data-testid="stHeader"] {
-        background: #ffffff !important;
-        color: #17332d !important;
-    }
-    [data-testid="stHeader"] * {
-        color: #17332d !important;
-    }
-
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #edf6f4 0%, #e7f1ef 100%);
         border-right: 1px solid rgba(15,118,110,0.12);
@@ -64,8 +54,23 @@ st.markdown(
     .brandline { color: #087f68; font-size: 0.73rem; font-weight: 800;
                  letter-spacing: 0.12em; text-transform: uppercase; }
     [data-testid="stImage"] img { border-radius: 16px; max-height: 220px; object-fit: cover; }
-        .card { background: rgba(255,255,255,0.96); border: 1px solid rgba(14,84,77,0.08); border-radius: 8px;
+    .card { background: rgba(255,255,255,0.96); border: 1px solid rgba(14,84,77,0.08); border-radius: 8px;
             box-shadow: 0 8px 20px rgba(23,51,45,0.06); padding: 1rem 1.1rem; min-height: 8.5rem; }
+    .header-ribbon { margin-top: 1.2rem; padding: 0.95rem 1.1rem; min-height: 8.5rem;
+                     display: flex; flex-direction: column; justify-content: center; gap: 0.38rem;
+                     border: 1px solid rgba(8,127,104,0.18); border-radius: 8px;
+                     background: linear-gradient(115deg, #e5f3ef 0%, #ffffff 58%, #eef7f5 100%);
+                     box-shadow: 0 8px 20px rgba(23,51,45,0.06); }
+    .ribbon-topline { display: flex; align-items: center; justify-content: space-between; gap: 0.7rem; }
+    .ribbon-live { display: inline-flex; align-items: center; gap: 0.45rem;
+                   color: #087f68; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; }
+    .ribbon-live::before { content: ""; width: 0.5rem; height: 0.5rem; border-radius: 50%;
+                           background: #0f9b75; box-shadow: 0 0 0 3px rgba(15,155,117,0.13);
+                           animation: live-pulse 1.8s ease-in-out infinite; }
+    .ribbon-time { color: #17332d; font-size: 1.2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .ribbon-count { color: #54706b; font-size: 0.78rem; }
+    @keyframes live-pulse { 50% { box-shadow: 0 0 0 6px rgba(15,155,117,0.04); } }
+    @media (prefers-reduced-motion: reduce) { .ribbon-live::before { animation: none; } }
     .kpi { background: linear-gradient(135deg, #f7fbfa, #edf6f5); border: 1px solid rgba(8,127,104,0.12);
            border-radius: 8px; padding: 1.1rem 1.1rem 0.9rem; box-shadow: 0 8px 20px rgba(7,94,85,0.05);
            display: flex; flex-direction: column; justify-content: space-between; min-height: 146px; }
@@ -73,32 +78,20 @@ st.markdown(
     [data-testid="stSidebar"] .stMultiSelect > div,
     [data-testid="stSidebar"] .stRadio > div,
     [data-testid="stSidebar"] .stFileUploader > section {
-        background: #ffffff !important;
+        background: rgba(255,255,255,0.8) !important;
         border: 1px solid rgba(15,118,110,0.18) !important;
         border-radius: 12px !important;
     }
-
-    /* White Parameters to display box */
-    [data-testid="stSidebar"] .stMultiSelect [data-baseweb="select"] {
+    [data-testid="stSidebar"] [data-testid="stMultiSelect"] [data-baseweb="select"] {
         background: #ffffff !important;
-        color: #17332d !important;
-        border-radius: 10px !important;
+        border: 1px solid rgba(15,118,110,0.24) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 1px 3px rgba(23,51,45,0.06) !important;
+        align-items: center !important;
     }
-    [data-testid="stSidebar"] .stMultiSelect [data-baseweb="select"] > div {
-        background: #ffffff !important;
-        color: #17332d !important;
-    }
-    [data-testid="stSidebar"] .stMultiSelect input {
-        color: #17332d !important;
-        background: #ffffff !important;
-    }
-    [data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"] {
-        background: #ffffff !important;
-        border: 1px solid rgba(15,118,110,0.25) !important;
-        color: #17332d !important;
-    }
-    [data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"] span {
-        color: #17332d !important;
+    [data-testid="stSidebar"] [data-testid="stMultiSelect"] [data-baseweb="tag"] {
+        align-items: center !important;
+        border-radius: 6px !important;
     }
     .status-pill { display: inline-block; padding: 0.38rem 0.7rem; border-radius: 999px; font-size: 0.76rem;
                    font-weight: 700; letter-spacing: 0.03em; }
@@ -189,6 +182,23 @@ def metric_card(title, value, delta, tone="#0f766e"):
             <div class="section-label">{title}</div>
             <div style="font-size:2.1rem; font-weight:800; color:{color}; margin-top:0.3rem;">{value}</div>
             <div class="small-note" style="margin-top:0.2rem;">{delta}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+@st.fragment(run_every="1s")
+def render_live_ribbon(record_count, sensor_count):
+    st.markdown(
+        f"""
+        <div class="header-ribbon">
+            <div class="ribbon-topline">
+                <span class="ribbon-live">Live monitor</span>
+                <span class="section-label">Local time</span>
+            </div>
+            <div class="ribbon-time">{pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}</div>
+            <div class="ribbon-count">{record_count:,} records · {sensor_count} sensors</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -514,10 +524,7 @@ with header_left:
     st.title("Engine Health & Predictive Maintenance Dashboard")
     st.caption(f"Operational view · {engine_name} · Source: {source_label}")
 with header_right:
-    st.markdown(
-        f"<div class='card' style='margin-top: 1.2rem;'><div class='section-label'>Last updated</div><div style='font-size:1.2rem; font-weight:700; color:#17332d;'>{pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}</div><div class='small-note'>Records: {len(results)} | {len(used_features)} sensors</div></div>",
-        unsafe_allow_html=True,
-    )
+    render_live_ribbon(len(results), len(used_features))
 
 kpi_columns = st.columns(4)
 with kpi_columns[0]:
